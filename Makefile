@@ -6,7 +6,6 @@ rewrite-symbols:
 	cp bedrock_server_symbols.debug bedrock_server_symbols_backup.debug
 	strip --strip-debug bedrock_server_symbols.debug
 	python3 export-symbols.py
-	strip --strip-debug bedrock_server_symbols_test.debug
 	chmod +x ./bedrock_server_symbols_test.debug
 	cp bedrock_server_symbols_backup.debug bedrock_server_symbols.debug
 
