@@ -1,0 +1,3 @@
+[submodule "input_files/old_block_palettes"]
+	path = input_files/old_block_palettes
+	url = git@github.com:pmmp/BlockPaletteArchive
