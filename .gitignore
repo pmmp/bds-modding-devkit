@@ -17,7 +17,6 @@ sdk/
 permissions.json
 whitelist.json
 CMakeFiles/
-code/
 structures/
 definitions/
 packet-statistics.txt
