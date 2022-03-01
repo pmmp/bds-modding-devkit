@@ -12,10 +12,10 @@ Auxiliary scripts used for modding BDS for generating protocol data
 ## Getting started in 60 seconds
 1. Clone the repo
 2. `git submodule update --init`
-3. `./helper.sh install-modloader`
-4. `./helper.sh install-server path/to/bds/server/files`
-5. `./helper.sh build all`
-6. `./start.sh` to run the server with mods loaded
+3. `./helper.sh setup path/to/bds/server/files`
+4. `./start.sh` to run the server with mods loaded
+
+Run `./helper.sh help` to get more usage info.
 
 ## Things in the repo
 | File name | Description |
@@ -23,7 +23,6 @@ Auxiliary scripts used for modding BDS for generating protocol data
 | `export-symbols.py` | Uses [LIEF](https://github.com/lief-project/LIEF) to patch BDS and make the symbols linkable |
 | `helper.sh` | Carbon copy of the helper.sh from [modloader-helper](https://github.com/Frago9876543210/modloader-helper) (To be removed and downloaded automatically instead) |
 | `start.sh` | From [modloader-helper](https://github.com/Frago9876543210/modloader-helper) |
-| `Makefile` | Script added by me to ease the process of working with custom builds of BDS |
 | `tracer.py` | Uses [Frida](https://frida.re) to hook packet functions in BDS and create packet traces. Run this while you have a BDS instance already running. Requires `sudo`. |
 
 ## Credits
