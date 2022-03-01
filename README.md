@@ -21,8 +21,8 @@ Run `./helper.sh help` to get more usage info.
 | File name | Description |
 |:----------|:------------|
 | `export-symbols.py` | Uses [LIEF](https://github.com/lief-project/LIEF) to patch BDS and make the symbols linkable |
-| `helper.sh` | Carbon copy of the helper.sh from [modloader-helper](https://github.com/Frago9876543210/modloader-helper) (To be removed and downloaded automatically instead) |
-| `start.sh` | From [modloader-helper](https://github.com/Frago9876543210/modloader-helper) |
+| `helper.sh` | Helper script based on [modloader-helper](https://github.com/Frago9876543210/modloader-helper) |
+| `start.sh` | Runs the server with mods loaded. From [modloader-helper](https://github.com/Frago9876543210/modloader-helper) |
 | `tracer.py` | Uses [Frida](https://frida.re) to hook packet functions in BDS and create packet traces. Run this while you have a BDS instance already running. Requires `sudo`. |
 
 ## Credits
