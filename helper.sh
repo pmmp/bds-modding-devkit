@@ -85,9 +85,8 @@ export_server_symbols(){
 	python3 export-symbols.py "$output_path" "$output_path"
 }
 
-install_server(){
+copy_server_files(){
 	local working_directory="$2"
-	clean_old_server "$working_directory"
 	local server_files="$1"
 
 	echo "${LY} > Installing new server files from $server_files (this might take a few minutes)${R}"
@@ -97,11 +96,29 @@ install_server(){
 	cp -r "$server_files/definitions" "$working_directory"
 	cp "$server_files/bedrock_server" "$working_directory"
 	cp "$server_files/bedrock_server_symbols.debug" "$working_directory"
+
+	if [ ! -f "$working_directory/server.properties" ]; then
+		echo "${LY} > Creating server.properties$R"
+		cp "$server_files/server.properties" "$working_directory"
+	else
+		echo "${LY} > server.properties already exists$R"
+	fi
+
 	echo "${LG} > New server files installed!"
+}
+
+install_server(){
+	local server_files="$1"
+	local working_directory="$2"
+
+	clean_old_server "$working_directory"
+
+	copy_server_files "$server_files" "$working_directory"
 
 	export_server_symbols "$working_directory/bedrock_server_symbols.debug" "$working_directory/bedrock_server_symbols_test.debug"
 
-	echo "${LY}>>> Installation successful. Try ${LG}./start.sh ${LY}<<<$R"
+	echo "${LG} > Installation successful."
+	echo "${LG} > Don't forget to build mods before running the server: ${LY}$0 build all$R"
 }
 
 install_modloader(){
@@ -166,6 +183,7 @@ extern \"C\" void modloader_on_server_start(void* serverInstance) {
 		else
 			build_mod $2
 		fi
+		echo "${LG} > All mods built successfully. To start the server with mods loaded, run ${LY}./start.sh$R"
 		;;
 	*)
 		show_help
