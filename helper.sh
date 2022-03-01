@@ -15,8 +15,10 @@ show_help(){
 	echo "${LC}Usage: $LG$0 ${LR}command ${LC}<${LY}arguments${LC}>
 
 ${LG}Available commands:
-  ${LR}install${LC} ${W}         — ${LC}downloads the necessary files for server/mods
-  ${LR}gen   ${LC}<${LY}name${LC}>     ${W}— ${LC}generates template for mod
+  ${LR}clean-server${LC} ${W} — ${LC}removes the old server binaries, leaving configs and worlds intact
+  ${LR}install-server${LC} ${W} — ${LC}installs server files from the given directory
+  ${LR}install-modloader${LC} — installs latest ModLoader binaries and SDK
+  ${LR}gen ${LC}<${LY}name${LC}> ${W}— ${LC}generates template for mod
   ${LR}build ${LC}<${LY}all${LC}|${LY}name${LC}> ${W}— ${LC}builds all mods or selected$R"
 }
 
@@ -38,6 +40,8 @@ check_args(){
 }
 
 setup_sdk(){
+	local working_directory="$1"
+	cd "$working_directory"
 	rm -rf sdk && mkdir -p sdk && cd sdk
 	download $(get_latest_release "minecraft-linux/server-modloader" "*\.zip") mod_sdk.zip true
 }
@@ -59,73 +63,73 @@ build_mod(){
 	fi
 }
 
-case $1 in
-	"install")
-		printf "${LY} > Do you really want to download the server to this directory (Y/n)?$R "
-		read answer
-		if [[ "$answer" != "${answer#[Yy]}" ]]; then
-			download $(curl -sL https://minecraft.net/en-us/download/server/bedrock/ | grep -Eo "https://\S*/bin-linux/\S*" | sed -e 's/^"//' -e 's/"$//') server.zip true
-			echo "${LG} > Server was downloaded!$R"
-
-			download $(get_latest_release "minecraft-linux/server-modloader" "*lib.*\.so") libserver_modloader.so
-			mkdir -p mods/
-			download $(get_latest_release "minecraft-linux/server-modloader-coremod" "*lib.*\.so") mods/libCoreMod.so
-
-			echo "#!/bin/bash
-PRELOAD=libserver_modloader.so
-LIBS=.
-BDS=./bedrock_server
-
-start_server(){
-	if [ -n \"\$VANILLA\" ]; then
-		LD_LIBRARY_PATH=\$LIBS \$BDS \$@
-	elif [ -n \"\$DEBUG\" ]; then
-		gdb \$BDS \$@ -ex \"set environment LD_PRELOAD \$PRELOAD\" \\
-			-ex \"set environment LD_LIBRARY_PATH \$LIBS\" \\
-			-ex \"run\" \\
-			-ex \"set confirm off\" \\
-			-ex quit
-	else
-		LD_PRELOAD=\$PRELOAD LD_LIBRARY_PATH=\$LIBS ./bedrock_server \$@
-	fi
+clean_old_server(){
+	local working_directory="$1"
+	cd "$working_directory"
+	rm -rf structures behavior_packs resource_packs definitions || true
+	rm bedrock_server bedrock_server_symbols.debug bedrock_server_symbols_test.debug || true
+	echo "${LG} > Old server files removed from ${working_directory}$R"
 }
 
-while getopts \"vdl\" OPTION 2> /dev/null; do
-	case \${OPTION} in
-		v)
-			VANILLA=true
-			;;
-		d)
-			DEBUG=true
-			;;
-		l)
-			DO_LOOP=true
-			;;
-		\?)
-			break
-			;;
-	esac
-done
+export_server_symbols(){
+	local input_path="$1"
+	local output_path="$2"
 
-if [ -n \"\$DO_LOOP\" ]; then
-	while true; do
-		start_server
-		echo \"To escape the loop, press CTRL+C now. Otherwise, wait 5 seconds for the server to restart.\"
-		echo \"\"
-		sleep 5
-	done
-else
-	start_server
-fi
-" > start.sh
-			chmod +x start.sh
+	echo "${LY} > Copying server binary"
+	cp "$input_path" "$output_path"
 
-			setup_sdk
-			echo "${LG} > modloader-sdk and CoreMod was downloaded!$R"
-			echo "${LY} > modloader-sdk saved in $PWD$R"
+	echo "${LY} > Stripping DWARF if present"
+	strip --strip-debug "$output_path"
 
-			echo "${LY}>>> Installation successful. Try ${LG}./start.sh ${LY}<<<$R"
-		fi
+	echo "${LY} > Converting symbols"
+	python3 export-symbols.py "$output_path" "$output_path"
+}
+
+install_server(){
+	local working_directory="$2"
+	clean_old_server "$working_directory"
+	local server_files="$1"
+
+	echo "${LY} > Installing new server files from $server_files (this might take a few minutes)${R}"
+	cp -r "$server_files/structures" "$working_directory"
+	cp -r "$server_files/behavior_packs" "$working_directory"
+	cp -r "$server_files/resource_packs" "$working_directory"
+	cp -r "$server_files/definitions" "$working_directory"
+	cp "$server_files/bedrock_server" "$working_directory"
+	cp "$server_files/bedrock_server_symbols.debug" "$working_directory"
+	echo "${LG} > New server files installed!"
+
+	export_server_symbols "$working_directory/bedrock_server_symbols.debug" "$working_directory/bedrock_server_symbols_test.debug"
+
+	echo "${LY}>>> Installation successful. Try ${LG}./start.sh ${LY}<<<$R"
+}
+
+install_modloader(){
+	local working_directory="$1"
+	setup_sdk "$working_directory"
+	mkdir -p "$working_directory/mods/"
+	download $(get_latest_release "minecraft-linux/server-modloader-coremod" "*lib.*\.so") "$working_directory/mods/libCoreMod.so"
+}
+
+
+case $1 in
+	"clean-server")
+		clean_old_server "$PWD"
+		;;
+	"install-server")
+		check_args $# 2
+
+		install_server "$2" "$PWD"
+		;;
+	"export-server-symbols")
+		export_server_symbols "$PWD/bedrock_server_symbols.debug" "$PWD/bedrock_server_symbols_test.debug"
+		;;
+	"install-modloader")
+		install_modloader "$PWD"
+		echo "${LG} > modloader-sdk and CoreMod downloaded!$R"
+		echo "${LY} > modloader-sdk saved in $PWD$R"
+
+		echo "${LY}>>> Installation successful. Try ${LG}./start.sh ${LY}<<<$R"
 		;;
 	"gen")
 		check_args $# 2

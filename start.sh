@@ -1,5 +1,5 @@
 #!/bin/bash
-PRELOAD=libserver_modloader.so
+PRELOAD=sdk/lib/libserver_modloader.so
 LIBS=.
 [ -z "$BDS" ] && BDS=./bedrock_server_symbols_test.debug
 
