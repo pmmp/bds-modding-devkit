@@ -15,11 +15,12 @@ show_help(){
 	echo "${LC}Usage: $LG$0 ${LR}command ${LC}<${LY}arguments${LC}>
 
 ${LG}Available commands:
-  ${LR}clean-server${LC} ${W} — ${LC}removes the old server binaries, leaving configs and worlds intact
-  ${LR}install-server${LC} ${W} — ${LC}installs server files from the given directory
-  ${LR}install-modloader${LC} — installs latest ModLoader binaries and SDK
-  ${LR}gen ${LC}<${LY}name${LC}> ${W}— ${LC}generates template for mod
-  ${LR}build ${LC}<${LY}all${LC}|${LY}name${LC}> ${W}— ${LC}builds all mods or selected$R"
+  ${LR}setup ${LC}<${LY}server files path${LC}>${W} — ${LC}sets everything up from scratch for the first time
+  ${LR}clean-server${W} — ${LC}removes the old server binaries, leaving configs and worlds intact
+  ${LR}install-server ${LC}<${LY}server files path${LC}>${W} — ${LC}installs server files from the given directory
+  ${LR}install-modloader${W} — ${LC}installs latest ModLoader binaries and SDK
+  ${LR}gen ${LC}<${LY}name${LC}>${W} — ${LC}generates template for mod
+  ${LR}build ${LC}<${LY}all${LC}|${LY}name${LC}>${W} — ${LC}builds all mods or selected$R"
 }
 
 download(){
@@ -44,6 +45,7 @@ setup_sdk(){
 	cd "$working_directory"
 	rm -rf sdk && mkdir -p sdk && cd sdk
 	download $(get_latest_release "minecraft-linux/server-modloader" "*\.zip") mod_sdk.zip true
+	cd ..
 }
 
 build_mod(){
@@ -126,10 +128,28 @@ install_modloader(){
 	setup_sdk "$working_directory"
 	mkdir -p "$working_directory/mods/"
 	download $(get_latest_release "minecraft-linux/server-modloader-coremod" "*lib.*\.so") "$working_directory/mods/libCoreMod.so"
+
+	echo "${LG} > modloader-sdk and CoreMod downloaded!$R"
+	echo "${LY} > modloader-sdk saved in $working_directory$R"
+}
+
+build_all_mods(){
+	local mods_code="$1"
+	export -f build_mod && export LIBS=$LIBS
+	find "$mods_code" -mindepth 1 -maxdepth 1 -type d -print0 | xargs -0 -n1 -P4 -I '@' bash -c 'build_mod @'
 }
 
 
 case $1 in
+	"setup")
+		check_args $# 2
+
+		install_modloader "$PWD"
+		install_server "$2" "$PWD"
+		build_all_mods "$MODS_CODE"
+
+		echo "${LY}>>> Setup successful. Try ${LG}./start.sh ${LY}<<<$R"
+		;;
 	"clean-server")
 		clean_old_server "$PWD"
 		;;
@@ -143,8 +163,6 @@ case $1 in
 		;;
 	"install-modloader")
 		install_modloader "$PWD"
-		echo "${LG} > modloader-sdk and CoreMod downloaded!$R"
-		echo "${LY} > modloader-sdk saved in $PWD$R"
 
 		echo "${LY}>>> Installation successful. Try ${LG}./start.sh ${LY}<<<$R"
 		;;
@@ -178,8 +196,7 @@ extern \"C\" void modloader_on_server_start(void* serverInstance) {
 		check_args $# 2
 
 		if [[ "$2" == "all" ]]; then
-			export -f build_mod && export LIBS=$LIBS
-			find "$MODS_CODE" -mindepth 1 -maxdepth 1 -type d -print0 | xargs -0 -n1 -P4 -I '@' bash -c 'build_mod @'
+			build_all_mods "$MODS_CODE"
 		else
 			build_mod $2
 		fi
