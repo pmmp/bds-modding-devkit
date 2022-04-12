@@ -26,7 +26,7 @@ ${LG}Available commands:
 download(){
 	curl --insecure --silent --show-error --location --globoff $1 > $2
 	if [[ "$3" = true ]]; then
-		unzip -qq $2 && rm $2
+		unzip -qq $2 && rm $2 || exit 1
 	fi
 }
 
@@ -57,7 +57,8 @@ build_mod(){
 		fi
 
 		mkdir -p build && cd build
-		cmake $CMAKE_FLAGS .. && make -j2 || exit 1
+		cmake $CMAKE_FLAGS .. || exit 1
+		make -j2 || exit 1
 
 		cp *.so $LIBS
 	else
@@ -136,7 +137,7 @@ install_modloader(){
 build_all_mods(){
 	local mods_code="$1"
 	export -f build_mod && export LIBS=$LIBS
-	find "$mods_code" -mindepth 1 -maxdepth 1 -type d -print0 | xargs -0 -n1 -P4 -I '@' bash -c 'build_mod @'
+	find "$mods_code" -mindepth 1 -maxdepth 1 -type d -print0 | xargs -0 -n1 -P4 -I '@' bash -c 'build_mod @ || exit 255' || exit 1
 }
 
 
