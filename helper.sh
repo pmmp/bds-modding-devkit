@@ -9,7 +9,7 @@ W=$(echo -en '\033[01;37m')
 LIBS="$PWD/mods"
 MODS_CODE="$PWD/code"
 SDK="$PWD/sdk"
-CMAKE_FLAGS="-DCMAKE_BUILD_TYPE=Debug"
+CMAKE_FLAGS="-DCMAKE_BUILD_TYPE=Debug -DCMAKE_PREFIX_PATH=\"$SDK\""
 
 show_help(){
 	echo "${LC}Usage: $LG$0 ${LR}command ${LC}<${LY}arguments${LC}>
@@ -49,20 +49,18 @@ setup_sdk(){
 }
 
 build_mod(){
-	if [[ -d "$MODS_CODE/$1" ]]; then
-		if [[ -f "$1/CMakeLists.txt" ]]; then
-			cd $1
-		else
-			cd $MODS_CODE/$1
-		fi
+	local mod_path="$1"
+	local cmake_flags="$2"
+	if [[ -f "$1/CMakeLists.txt" ]]; then
+		cd "$mod_path"
 
 		mkdir -p build && cd build
-		cmake $CMAKE_FLAGS .. || exit 1
+		cmake $cmake_flags .. || exit 1
 		make -j2 || exit 1
 
 		cp *.so $LIBS
 	else
-		echo "${LR} Could not find $1"
+		echo "${LR} Could not find $mod_path"
 	fi
 }
 
@@ -128,16 +126,16 @@ install_modloader(){
 	local working_directory="$1"
 	setup_sdk "$working_directory"
 	mkdir -p "$working_directory/mods/"
-	download $(get_latest_release "minecraft-linux/server-modloader-coremod" "*lib.*\.so") "$working_directory/mods/libCoreMod.so"
 
-	echo "${LG} > modloader-sdk and CoreMod downloaded!$R"
+	echo "${LG} > modloader-sdk downloaded!$R"
 	echo "${LY} > modloader-sdk saved in $working_directory$R"
 }
 
 build_all_mods(){
 	local mods_code="$1"
+	local cmake_flags="$2"
 	export -f build_mod && export LIBS=$LIBS
-	find "$mods_code" -mindepth 1 -maxdepth 1 -type d -print0 | xargs -0 -n1 -P4 -I '@' bash -c 'build_mod @ || exit 255' || exit 1
+	find "$mods_code" -mindepth 1 -maxdepth 1 -type d -print0 | xargs -0 -n1 -P4 -I '@' bash -c "build_mod @ \"$cmake_flags\" || exit 255" || exit 1
 }
 
 
@@ -147,7 +145,7 @@ case $1 in
 
 		install_modloader "$PWD"
 		install_server "$2" "$PWD"
-		build_all_mods "$MODS_CODE"
+		build_all_mods "$MODS_CODE" "$CMAKE_FLAGS"
 
 		echo "${LY}>>> Setup successful. Try ${LG}./start.sh ${LY}<<<$R"
 		;;
@@ -197,9 +195,9 @@ extern \"C\" void modloader_on_server_start(void* serverInstance) {
 		check_args $# 2
 
 		if [[ "$2" == "all" ]]; then
-			build_all_mods "$MODS_CODE"
+			build_all_mods "$MODS_CODE" "$CMAKE_FLAGS"
 		else
-			build_mod $2
+			build_mod $2 "$CMAKE_FLAGS"
 		fi
 		echo "${LG} > All mods built successfully. To start the server with mods loaded, run ${LY}./start.sh$R"
 		;;
