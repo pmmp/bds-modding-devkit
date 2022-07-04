@@ -103,10 +103,11 @@ recv('input', function(message) {
     })
 
     session.on('detached', onExit)
-    print('Logging packets to ' + logpath)
     while not stopped:
         time.sleep(1)
     logfile.close()
+
+    print('Packet logs written to ' + logpath)
     print("Bye\n")
     sys.exit(0)
 except KeyboardInterrupt:
