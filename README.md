@@ -5,7 +5,7 @@ Auxiliary scripts used for modding BDS for generating protocol data
 - A Linux environment with a 5.4 kernel or newer (WSL2 is fine)
 - `python3`
 - `pip`
-- [LIEF](https://github.com/lief-project/LIEF): `pip install --index-url https://lief-project.github.io/packages lief==0.12.0.dev0`
+- [LIEF](https://github.com/lief-project/LIEF): `pip install lief`
 - [Frida](https://frida.re): `pip install frida frida-tools`
 - A folder with an unpacked version of [Bedrock Dedicated Server](https://minecraft.net/download/server/bedrock)
 
