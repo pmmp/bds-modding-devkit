@@ -8,9 +8,7 @@ start_server(){
 		LD_LIBRARY_PATH=$LIBS $BDS $@
 	elif [ -n "$DEBUG" ]; then
 		gdb $BDS $@ -ex "set environment LD_PRELOAD $PRELOAD" \
-			-ex "set environment LD_LIBRARY_PATH $LIBS" \
-			-ex "run" \
-			-ex "set confirm off"
+			-ex "set environment LD_LIBRARY_PATH $LIBS"
 	else
 		LD_PRELOAD=$PRELOAD LD_LIBRARY_PATH=$LIBS $BDS $@
 	fi
