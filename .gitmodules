@@ -3,7 +3,7 @@
 	url = git@github.com:pmmp/BlockPaletteArchive
 [submodule "code/mapping"]
 	path = code/mapping
-	url = git@github.com:pmmp/mapping.git
+	url = git@github.com:pmmp/bds-mod-mapping.git
 [submodule "code/coremod"]
 	path = code/coremod
 	url = git@github.com:minecraft-linux/server-modloader-coremod.git
