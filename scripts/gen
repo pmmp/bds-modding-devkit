@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+
+FILE="$0"
+MYDIR=$(dirname -- "$FILE")
+
+source "$MYDIR/shared"
+
+if [ $# -ne 1 ]; then
+	echo "${LC}Generates template for mod$R"
+	echo "${LC}Usage: ${LR}$0 ${LC}<${LY}mod name${LC}>$R"
+	exit 1
+fi
+
+MODNAME="$1"
+mkdir -p "$MODS_CODE/$MODNAME/src" && cd $MODS_CODE
+echo "cmake_minimum_required(VERSION 3.0)
+project($MODNAME)
+
+set(CMAKE_PREFIX_PATH ../../sdk)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+
+find_package(ModLoader REQUIRED)
+
+add_library($MODNAME SHARED src/main.cpp)
+target_link_libraries($MODNAME PUBLIC ModLoader)" > "$MODS_CODE/$MODNAME/CMakeLists.txt"
+echo "#include <modloader/log.h>
+#include <modloader/statichook.h>
+
+using namespace modloader;
+
+#define TAG \"$MODNAME\"
+
+extern \"C\" void modloader_on_server_start(void* serverInstance) {
+	Log::verbose(TAG, \"Hello, world!\");
+}" > "$MODS_CODE/$MODNAME/src/main.cpp"
+
+echo "$LG > Successfully generated skeleton files in $MODS_CODE/$MODNAME$R"

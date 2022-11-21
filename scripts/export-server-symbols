@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+FILE="$0"
+MYDIR=$(dirname -- "$FILE")
+
+source "$MYDIR/shared"
+
+if [ $# -ne 0 ]; then
+	echo "${LC}Patches bedrock_server_symbols.debug to make its debugging symbols linkable$R"
+	echo "${LC}Usage: ${LR}$0$R"
+	exit 1
+fi
+
+set -e
+export_server_symbols "$PWD/bedrock_server_symbols.debug" "$PWD/bedrock_server_symbols_test.debug"

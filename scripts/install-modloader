@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+FILE="$0"
+MYDIR=$(dirname -- "$FILE")
+
+source "$MYDIR/shared"
+
+if [ $# -ne 0 ]; then
+	echo "${LC}Installs latest ModLoader binaries and SDK$R"
+	echo "${LC}Usage: ${LR}$0$R"
+	exit 1
+fi
+
+install_modloader "$PWD"

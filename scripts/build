@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+
+FILE="$0"
+MYDIR=$(dirname -- "$FILE")
+
+source "$MYDIR/shared"
+
+if [ $# -ne 1 ]; then
+	echo "${LC}Builds all mods or selected$R"
+	echo "${LC}Usage: ${LR}$0 ${LC}<${LY}all|mod name${LC}>$R"
+	exit 1
+fi
+
+if [[ "$1" == "all" ]]; then
+	build_all_mods "$MODS_CODE" "$CMAKE_FLAGS"
+else
+	build_mod "$PWD/code/$1" "$CMAKE_FLAGS"
+fi
+
+echo "${LG} > All mods built successfully. To start the server with mods loaded, run ${LY}./start.sh$R"

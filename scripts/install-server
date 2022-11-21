@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+
+FILE="$0"
+MYDIR=$(dirname -- "$FILE")
+
+source "$MYDIR/shared"
+
+if [ $# -ne 1 ]; then
+	echo "${LC}Installs server files from the given directory into ${LG}$PWD$R"
+	echo "${LC}Usage: ${LR}$0 ${LC}<${LY}server files path${LC}>$R"
+	exit 1
+fi
+
+install_server "$1" "$PWD"
+
+
+echo "${LG} > Installation successful."
+echo "${LG} > Don't forget to build mods before running the server: ${LY}$MYDIR/build all$R"
+

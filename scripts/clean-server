@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+FILE="$0"
+MYDIR=$(dirname -- "$FILE")
+
+source "$MYDIR/shared"
+
+if [ $# -ne 0 ]; then
+	echo "${LC}Removes the old server binaries, leaving configs and worlds intact$R"
+	echo "${LC}Usage: ${LR}$0$R"
+	exit 1
+fi
+
+clean_old_server "$PWD"

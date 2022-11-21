@@ -1,0 +1,137 @@
+#!/bin/bash
+R=$(echo -en '\033[0m')
+LR=$(echo -en '\033[01;31m')
+LG=$(echo -en '\033[01;32m')
+LY=$(echo -en '\033[01;33m')
+LC=$(echo -en '\033[01;36m')
+W=$(echo -en '\033[01;37m')
+
+LIBS="$PWD/mods"
+MODS_CODE="$PWD/code"
+SDK="$PWD/sdk"
+CMAKE_FLAGS="-DCMAKE_BUILD_TYPE=Debug -DCMAKE_PREFIX_PATH=\"$SDK\""
+
+show_help(){
+	echo "${LC}Usage: $LG$0 ${LR}command ${LC}<${LY}arguments${LC}>
+
+	${LG}Available commands:
+	${LR}setup ${LC}<${LY}server files path${LC}>${W} — ${LC}sets everything up from scratch for the first time
+	${LR}clean-server${W} — ${LC}removes the old server binaries, leaving configs and worlds intact
+	${LR}install-server ${LC}<${LY}server files path${LC}>${W} — ${LC}installs server files from the given directory
+	${LR}install-modloader${W} — ${LC}installs latest ModLoader binaries and SDK
+	${LR}gen ${LC}<${LY}name${LC}>${W} — ${LC}generates template for mod
+	${LR}build ${LC}<${LY}all${LC}|${LY}name${LC}>${W} — ${LC}builds all mods or selected$R"
+}
+
+download(){
+	curl --insecure --silent --show-error --location --globoff $1 > $2
+	if [[ "$3" = true ]]; then
+		unzip -qq $2 && rm $2 || exit 1
+	fi
+}
+
+get_latest_release(){
+	curl -s "https://api.github.com/repos/$1/releases/latest" | grep '"browser_download_url":.'$2 | sed -E 's/.*"([^"]+)".*/\1/'
+}
+
+check_args(){
+	if [ "$1" -ne $2 ]; then
+		show_help && exit 0
+	fi
+}
+
+setup_sdk(){
+	local working_directory="$1"
+	cd "$working_directory"
+	rm -rf sdk && mkdir -p sdk && cd sdk
+	download $(get_latest_release "minecraft-linux/server-modloader" "*\.zip") mod_sdk.zip true
+	cd ..
+}
+
+build_mod(){
+	local mod_path="$1"
+	local cmake_flags="$2"
+	if [[ -f "$1/CMakeLists.txt" ]]; then
+		cd "$mod_path"
+
+		mkdir -p build && cd build
+		cmake $cmake_flags .. || exit 1
+		make -j2 || exit 1
+
+		cp *.so $LIBS
+	else
+		echo "${LR} Could not find $mod_path"
+		exit 1
+	fi
+}
+
+clean_old_server(){
+	local working_directory="$1"
+	cd "$working_directory"
+	rm -rf structures behavior_packs resource_packs definitions || true
+	rm bedrock_server bedrock_server_symbols.debug bedrock_server_symbols_test.debug || true
+	echo "${LG} > Old server files removed from ${working_directory}$R"
+}
+
+export_server_symbols(){
+	local input_path="$1"
+	local output_path="$2"
+
+	echo "${LY} > Copying server binary"
+	cp "$input_path" "$output_path"
+
+	echo "${LY} > Stripping DWARF if present"
+	strip --strip-debug "$output_path"
+
+	echo "${LY} > Converting symbols"
+	python3 export-symbols.py "$output_path" "$output_path"
+}
+
+copy_server_files(){
+	local working_directory="$2"
+	local server_files="$1"
+
+	echo "${LY} > Installing new server files from $server_files (this might take a few minutes)${R}"
+	cp -r "$server_files/structures" "$working_directory"
+	cp -r "$server_files/behavior_packs" "$working_directory"
+	cp -r "$server_files/resource_packs" "$working_directory"
+	cp -r "$server_files/definitions" "$working_directory"
+	cp "$server_files/bedrock_server" "$working_directory"
+	cp "$server_files/bedrock_server_symbols.debug" "$working_directory"
+
+	if [ ! -f "$working_directory/server.properties" ]; then
+		echo "${LY} > Creating server.properties$R"
+		cp "$server_files/server.properties" "$working_directory"
+	else
+		echo "${LY} > server.properties already exists$R"
+	fi
+
+	echo "${LG} > New server files installed!"
+}
+
+install_server(){
+	local server_files="$1"
+	local working_directory="$2"
+
+	clean_old_server "$working_directory"
+
+	copy_server_files "$server_files" "$working_directory"
+
+	export_server_symbols "$working_directory/bedrock_server_symbols.debug" "$working_directory/bedrock_server_symbols_test.debug"
+}
+
+install_modloader(){
+	local working_directory="$1"
+	setup_sdk "$working_directory"
+	mkdir -p "$working_directory/mods/"
+
+	echo "${LG} > modloader-sdk downloaded!$R"
+	echo "${LY} > modloader-sdk saved in $working_directory$R"
+}
+
+build_all_mods(){
+	local mods_code="$1"
+	local cmake_flags="$2"
+	export -f build_mod && export LIBS=$LIBS
+	find "$mods_code" -mindepth 1 -maxdepth 1 -type d -print0 | xargs -0 -n1 -P4 -I '@' bash -c "build_mod @ \"$cmake_flags\" || exit 255" || exit 1
+}

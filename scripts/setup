@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+
+FILE="$0"
+MYDIR=$(dirname -- "$FILE")
+
+source "$MYDIR/shared"
+
+if [ $# -ne 1 ]; then
+	echo "${LC}Sets everything up from scratch for the first time$R"
+	echo "${LC}Usage: ${LR}$0 ${LC}<${LY}server files path${LC}>$R"
+	exit 1
+fi
+
+install_modloader "$PWD"
+install_server "$1" "$PWD"
+build_all_mods "$MODS_CODE" "$CMAKE_FLAGS"
+
+echo "${LY}>>> Setup successful. Try ${LG}./start.sh ${LY}<<<$R"
