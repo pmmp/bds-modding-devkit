@@ -18,7 +18,7 @@ The following mods are included as git submodules:
 ## Getting started in 60 seconds
 1. Clone the repo
 2. `git submodule update --init`
-3. `./helper.sh setup path/to/bds/server/files`
+3. `./scripts/setup path/to/bds/server/files`
 4. `./start.sh` to run the server with mods loaded
 
 Run `./helper.sh help` to get more usage info.
