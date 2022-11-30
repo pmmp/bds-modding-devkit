@@ -4,7 +4,7 @@ This developer kit allows you to quickly and easily start modding the Bedrock De
 It's used for dumping information for protocol updates for PocketMine-MP, but the tools provided here can be used for much more than that.
 
 The following mods are included as git submodules:
-- [minecraft-linux/libCoreMod](https://github.com/minecraft-linux/server-modloader-coremod)
+- [minecraft-linux/server-modloader-coremod](https://github.com/minecraft-linux/server-modloader-coremod)
 - [pmmp/bds-mod-mapping](https://github.com/pmmp/bds-mod-mapping)
 
 ## Things you'll need
