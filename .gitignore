@@ -3,6 +3,7 @@ build/*
 cmake-build-debug/*
 mods/
 input_files/
+!input_files/old_block_palettes
 mapping_files/
 CMakeCache.txt
 Dedicated_Server.txt
