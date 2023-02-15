@@ -1,9 +1,9 @@
 [submodule "input_files/old_block_palettes"]
 	path = input_files/old_block_palettes
-	url = git@github.com:pmmp/BlockPaletteArchive
+	url = https://github.com/pmmp/BlockPaletteArchive
 [submodule "code/mapping"]
 	path = code/mapping
-	url = git@github.com:pmmp/bds-mod-mapping.git
+	url = https://github.com/pmmp/bds-mod-mapping.git
 [submodule "code/coremod"]
 	path = code/coremod
-	url = git@github.com:minecraft-linux/server-modloader-coremod.git
+	url = https://github.com/minecraft-linux/server-modloader-coremod.git
