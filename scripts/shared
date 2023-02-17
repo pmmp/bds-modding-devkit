@@ -110,10 +110,21 @@ copy_server_files(){
 }
 
 install_server(){
-	local server_files="$1"
+	local input_files="$1"
 	local working_directory="$2"
 
 	clean_old_server "$working_directory"
+
+	if [ -f "$input_files" ]; then
+		echo "${LY} ! $input_files is a file, not a folder. Assuming this is a zip${R}"
+		local temp_dir="$PWD/.new_server_files"
+		rm -rf "$temp_dir" || true 2>/dev/null
+		unzip -q "$input_files" -d "$temp_dir" || exit 1
+		echo "${LY} > Server files successfully extracted to $temp_dir${R}"
+		local server_files="$temp_dir"
+	else
+		local server_files="$input_files"
+	fi
 
 	copy_server_files "$server_files" "$working_directory"
 
