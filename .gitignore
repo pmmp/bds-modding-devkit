@@ -4,6 +4,7 @@ cmake-build-debug/*
 mods/
 input_files/
 !input_files/old_block_palettes
+!input_files/r12_block_states.json
 mapping_files/
 CMakeCache.txt
 Dedicated_Server.txt
