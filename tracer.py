@@ -59,7 +59,9 @@ try:
             console.log("Hooking function " + exportedFunc.name);
             Interceptor.attach(exportedFunc.address, {
                 onEnter: function(args) {
-                        this.pointer = args[1];
+                        //this used to be arg1, but changed to arg2 in 1.20
+                        //perhaps some return-over-stack compiler optimisation generated more args?
+                        this.pointer = args[2];
                 },
                 onLeave: function(retval) {
                         var bufferAddr = Memory.readPointer(this.pointer.add(56));
