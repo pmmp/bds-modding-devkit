@@ -42,9 +42,7 @@ def onExit():
     stopped = True
 
 try:
-    script = session.create_script("""var stringLength = new NativeFunction(Module.findExportByName(null, '_ZNKSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE6lengthEv'), 'long', ['pointer']);
-
-recv('input', function(message) {
+    script = session.create_script("""recv('input', function(message) {
     var mode = message.mode;
     var doRead = mode.includes('r');
     var doWrite = mode.includes('w');
@@ -64,9 +62,9 @@ recv('input', function(message) {
                         this.pointer = args[1];
                 },
                 onLeave: function(retval) {
-                        var realAddr = Memory.readPointer(this.pointer.add(56));
-                        var rlen = stringLength(realAddr);
-                        send('read', Memory.readByteArray(Memory.readPointer(realAddr), rlen));
+                        var bufferAddr = Memory.readPointer(this.pointer.add(56));
+                        var rlen = Memory.readULong(bufferAddr.add(8));
+                        send('read', Memory.readByteArray(Memory.readPointer(bufferAddr), rlen));
                 }
             });
             count++;
@@ -79,9 +77,9 @@ recv('input', function(message) {
                     this.pointer = args[1];
                 },
                 onLeave: function(retval) {
-                    var realAddr = Memory.readPointer(this.pointer.add(56));
-                    var rlen = stringLength(realAddr);
-                    send('write', Memory.readByteArray(Memory.readPointer(realAddr), rlen));
+                    var bufferAddr = Memory.readPointer(this.pointer.add(56));
+                    var rlen = Memory.readULong(bufferAddr.add(8));
+                    send('write', Memory.readByteArray(Memory.readPointer(bufferAddr), rlen));
                 }
             });
             count++;
