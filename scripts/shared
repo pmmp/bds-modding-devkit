@@ -24,7 +24,8 @@ show_help(){
 }
 
 download(){
-	curl --insecure --silent --show-error --location --globoff $1 > $2
+	echo "${LY} > Downloading file: $1$R"
+	curl --silent --show-error --location --globoff $1 > $2
 	if [[ "$3" = true ]]; then
 		unzip -qq $2 && rm $2 || exit 1
 	fi
@@ -44,7 +45,7 @@ setup_sdk(){
 	local working_directory="$1"
 	cd "$working_directory"
 	rm -rf sdk && mkdir -p sdk && cd sdk
-	download $(get_latest_release "minecraft-linux/server-modloader" "*\.zip") mod_sdk.zip true
+	download "$(get_latest_release "minecraft-linux/server-modloader" "*\.zip")" mod_sdk.zip true
 	cd ..
 }
 
