@@ -16,12 +16,12 @@ The following mods are included as git submodules:
 - `libc++abi-dev`
 - [LIEF](https://github.com/lief-project/LIEF): `pip install lief`
 - [Frida](https://frida.re): `pip install frida frida-tools`
-- A folder with an unpacked version of [Bedrock Dedicated Server](https://minecraft.net/download/server/bedrock)
+- A folder or zip of [Bedrock Dedicated Server](https://minecraft.net/download/server/bedrock)
 
 ## Getting started in 60 seconds
 1. Clone the repo
 2. `git submodule update --init`
-3. `./scripts/setup path/to/bds/server/files`
+3. `./scripts/setup path/to/bds/server/files` or `./scripts/setup path/to/bds.zip`
 4. `./start.sh` to run the server with mods loaded
 
 Run `./helper.sh help` to get more usage info.
