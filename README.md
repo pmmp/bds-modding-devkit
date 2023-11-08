@@ -11,6 +11,9 @@ The following mods are included as git submodules:
 - A Linux environment with a 5.4 kernel or newer (WSL2 is fine)
 - `python3`
 - `pip`
+- `clang`
+- `libc++-dev`
+- `libc++abi-dev`
 - [LIEF](https://github.com/lief-project/LIEF): `pip install lief`
 - [Frida](https://frida.re): `pip install frida frida-tools`
 - A folder with an unpacked version of [Bedrock Dedicated Server](https://minecraft.net/download/server/bedrock)
