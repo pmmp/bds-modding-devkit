@@ -34,7 +34,10 @@ def onMessage(message, data):
     if message['type'] == 'error':
         print(message['stack'])
         return
-    logfile.write(str.encode(message['payload']) + b':' + base64.b64encode(data) + b'\n')
+    try:
+        logfile.write(str.encode(message['payload']) + b':' + base64.b64encode(data) + b'\n')
+    except:
+        print(message)
 
 def onExit():
     print("Server process died!\n")
@@ -67,7 +70,12 @@ try:
                         var baseAddr = Memory.readPointer(this.pointer.add(48)); //56 prior to 1.20.40 - changing to libc++ changed BinaryStream layout
                         var bufferAddr = baseAddr.add(16); //0 before 1.20.40 - strings have a different layout in libc++
                         var rlen = Memory.readULong(baseAddr.add(8));
-                        send('read', Memory.readByteArray(Memory.readPointer(bufferAddr), rlen));
+                        var bytes = Memory.readByteArray(Memory.readPointer(bufferAddr), rlen);
+                        if (bytes === null) {
+                            console.log("Unexpected null payload from " + exportedFunc.name);
+                        } else {
+                            send('read', bytes);
+                        }
                 }
             });
             count++;
@@ -83,7 +91,12 @@ try:
                     var baseAddr = Memory.readPointer(this.pointer.add(48));
                     var bufferAddr = baseAddr.add(16); //0 before 1.20.40 - strings have a different layout in libc++
                     var rlen = Memory.readULong(baseAddr.add(8));
-                    send('write', Memory.readByteArray(Memory.readPointer(bufferAddr), rlen));
+                    var bytes = Memory.readByteArray(Memory.readPointer(bufferAddr), rlen);
+                    if (bytes === null) {
+                        console.log("Unexpected null payload from " + exportedFunc.name);
+                    } else {
+                        send('write', bytes);
+                    }
                 }
             });
             count++;
