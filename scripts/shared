@@ -129,7 +129,7 @@ install_server(){
 
 	copy_server_files "$server_files" "$working_directory"
 
-	export_server_symbols "$working_directory/bedrock_server_symbols.debug" "$working_directory/bedrock_server_symbols_test.debug"
+	export_server_symbols "$working_directory/bedrock_server_symbols.debug" "$working_directory/bedrock_server_symbols_test.debug" || echo "${LR} !!! Error exporting symbols, aborting$R" && exit 1
 }
 
 install_modloader(){
