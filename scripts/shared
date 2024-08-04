@@ -98,7 +98,12 @@ copy_server_files(){
 	cp -r "$server_files/resource_packs" "$working_directory"
 	cp -r "$server_files/definitions" "$working_directory"
 	cp "$server_files/bedrock_server" "$working_directory"
-	cp "$server_files/bedrock_server_symbols.debug" "$working_directory"
+	if [ -f "$server_files/bedrock_server_symbols.debug" ]; then
+		cp "$server_files/bedrock_server_symbols.debug" "$working_directory"
+	else
+		echo "${LY} > This version has symbols embedded in bedrock_server directly - copying bedrock_server to bedrock_server_symbols.debug$R"
+		cp "$server_files/bedrock_server" "$working_directory/bedrock_server_symbols.debug"
+	fi
 
 	if [ ! -f "$working_directory/server.properties" ]; then
 		echo "${LY} > Creating server.properties$R"

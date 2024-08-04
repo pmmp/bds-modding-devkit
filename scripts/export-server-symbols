@@ -12,8 +12,4 @@ if [ $# -ne 0 ]; then
 fi
 
 set -e
-if [ ! -f "$PWD/bedrock_server_symbols.debug" ]; then
-	echo "${LC}This version has symbols embedded in bedrock_server directly - copying$R"
-	cp "$PWD/bedrock_server" "$PWD/bedrock_server_symbols.debug"
-fi
 export_server_symbols "$PWD/bedrock_server_symbols.debug" "$PWD/bedrock_server_symbols_test.debug"
