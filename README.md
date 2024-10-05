@@ -14,7 +14,7 @@ The following mods are included as git submodules:
 - `clang`
 - `libc++-dev`
 - `libc++abi-dev`
-- [LIEF](https://github.com/lief-project/LIEF): `python3 -m pip install lief`
+- [LIEF](https://github.com/lief-project/LIEF): `python3 -m pip install lief~=0.14.0` (note: lief >=0.15.0 is currently NOT supported)
 - [Frida](https://frida.re): `python3 -m pip install frida frida-tools`
 - A folder or zip of [Bedrock Dedicated Server](https://minecraft.net/download/server/bedrock)
 
