@@ -14,8 +14,9 @@ The following mods are included as git submodules:
 - `clang`
 - `libc++-dev`
 - `libc++abi-dev`
+- `binutils` (for `protocol_info_dumper.py`)
 - [LIEF](https://github.com/lief-project/LIEF): `python3 -m pip install lief~=0.14.0` (note: lief >=0.15.0 is currently NOT supported)
-- [Frida](https://frida.re): `python3 -m pip install frida frida-tools`
+- [Frida](https://frida.re): `python3 -m pip install frida frida-tools` (for `tracer.py`)
 - A folder or zip of [Bedrock Dedicated Server](https://minecraft.net/download/server/bedrock)
 
 ## Getting started in 60 seconds
@@ -31,6 +32,7 @@ Run `./helper.sh help` to get more usage info.
 |:----------|:------------|
 | `export-symbols.py` | Uses [LIEF](https://github.com/lief-project/LIEF) to patch BDS and make the symbols linkable |
 | `helper.sh` | Helper script based on [modloader-helper](https://github.com/Frago9876543210/modloader-helper) |
+| `protocol_info_dumper.py` | Uses `objdump` to dump basic version info and packet ID lists from BDS for data generation |
 | `start.sh` | Runs the server with mods loaded. From [modloader-helper](https://github.com/Frago9876543210/modloader-helper) |
 | `tracer.py` | Uses [Frida](https://frida.re) to hook packet functions in BDS and create packet traces. Run this while you have a BDS instance already running. Requires `sudo`. |
 
