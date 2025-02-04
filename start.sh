@@ -7,8 +7,12 @@ start_server(){
 	if [ -n "$VANILLA" ]; then
 		LD_LIBRARY_PATH=$LIBS $BDS $@
 	elif [ -n "$DEBUG" ]; then
-		gdb $BDS $@ -ex "set environment LD_PRELOAD $PRELOAD" \
-			-ex "set environment LD_LIBRARY_PATH $LIBS"
+		#auto-load safe-path disabled to allow libthread_db to load
+		gdb \
+			-ex "set exec-wrapper env 'LD_PRELOAD=$PRELOAD'" \
+			-ex "set auto-load safe-path /" \
+			-ex "echo ----- Mod debugging set up. Type \"run\" to start the server. -----\n" \
+			$BDS $@
 	else
 		LD_PRELOAD=$PRELOAD LD_LIBRARY_PATH=$LIBS $BDS $@
 	fi
