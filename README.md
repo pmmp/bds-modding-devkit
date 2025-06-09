@@ -15,17 +15,33 @@ The following mods are included as git submodules:
 - `libc++-dev`
 - `libc++abi-dev`
 - `binutils` (for `protocol_info_dumper.py`)
-- [LIEF](https://github.com/lief-project/LIEF): `python3 -m pip install lief~=0.14.0` (note: lief >=0.15.0 is currently NOT supported)
-- [Frida](https://frida.re): `python3 -m pip install frida frida-tools` (for `tracer.py`)
 - A folder or zip of [Bedrock Dedicated Server](https://minecraft.net/download/server/bedrock)
 
 ## Getting started in 60 seconds
 1. Clone the repo
 2. `git submodule update --init`
-3. `./scripts/setup path/to/bds/server/files` or `./scripts/setup path/to/bds.zip`
-4. `./start.sh` to run the server with mods loaded
+3. `python3 -m venv ./python-venv` (or any path of your choice)
+4. `source ./python-venv/bin/activate`
+5. `python3 -m pip install -r python_requirements.txt`
+6. `./scripts/setup path/to/bds/server/files` or `./scripts/setup path/to/bds.zip`
+7. `./start.sh` to run the server with mods loaded
 
 Run `./helper.sh help` to get more usage info.
+
+## Updating the devkit after initial setup
+1. `git pull`
+2. `source ./python-venv/bin/activate`
+3. `python3 -m pip install -r python_requirements.txt`
+
+## Updating BDS with an existing installation
+1. `source ./python-venv/bin/activate`
+2. `./scripts/install-server path/to/bds/server/files` or `./scripts/install-server path/to/bds.zip`
+3. `./start.sh` to run the server with mods loaded
+
+> [!WARNING]
+> It's very likely that new versions of BDS will cause mods like `mapping` to not work anymore.
+> Updating these is sometimes complex and outside of the scope of this readme. Best to seek
+> support from the community if you don't know what you're doing.
 
 ## Things in the repo
 | File name | Description |
