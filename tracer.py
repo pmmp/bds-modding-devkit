@@ -67,8 +67,9 @@ try:
                         this.pointer = args[2];
                 },
                 onLeave: function(retval) {
-                        var baseAddr = Memory.readPointer(this.pointer.add(48)); //56 prior to 1.20.40 - changing to libc++ changed BinaryStream layout
-                        var bufferAddr = baseAddr.add(16); //0 before 1.20.40 - strings have a different layout in libc++
+                        //read from std::string_view in 1.21.50
+                        var baseAddr = this.pointer.add(32);
+                        var bufferAddr = baseAddr;
                         var rlen = Memory.readULong(baseAddr.add(8));
                         var bytes = Memory.readByteArray(Memory.readPointer(bufferAddr), rlen);
                         if (bytes === null) {
@@ -88,8 +89,9 @@ try:
                     this.pointer = args[1];
                 },
                 onLeave: function(retval) {
-                    var baseAddr = Memory.readPointer(this.pointer.add(48));
-                    var bufferAddr = baseAddr.add(16); //0 before 1.20.40 - strings have a different layout in libc++
+                    //read from std::string_view in 1.21.50
+                    var baseAddr = this.pointer.add(32);
+                    var bufferAddr = baseAddr;
                     var rlen = Memory.readULong(baseAddr.add(8));
                     var bytes = Memory.readByteArray(Memory.readPointer(bufferAddr), rlen);
                     if (bytes === null) {
