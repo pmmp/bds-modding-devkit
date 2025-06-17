@@ -22,7 +22,7 @@ print('Dumping data from ' + bds_path)
 print('Output file path ' + output_file_path)
 
 asm_regex = re.compile(r'.*\$(0x[A-Fa-f\d]+),%eax.*')
-symbol_match_regex = re.compile(r'([\da-zA-Z]+) (.{7}) (\.[A-Za-z\d_]+)\s+([\da-zA-Z]+)\s+(?:Base|\.hidden)?\s+(.+)')
+symbol_match_regex = re.compile(r'([\da-zA-Z]+) (.{7}) (\.[A-Za-z\d_\.]+)\s+([\da-zA-Z]+)\s+(?:Base|\.hidden)?\s+(.+)')
 rodata_offset_regex = re.compile(r"^\s*\d+\s+\.rodata\s+[\da-f]+\s+[\da-f]+\s+([\da-f]+)\s+([\da-f]+)")
 
 def get_value_at(file, offset, size, format):
@@ -85,7 +85,7 @@ def dump_packet_ids():
         if not symbol:
             break
         start, _, _, size, symbol = parse_symbol(symbol.decode('utf-8'))
-        packet_name = symbol.split('::')[0]
+        packet_name = '::'.join(symbol.split('::')[:-1]) #apparently packets can be namespaced now ???
         thread_index = None
         for i in range(len(threads)):
             if threads[i] is None:
