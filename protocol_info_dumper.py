@@ -86,6 +86,11 @@ def dump_packet_ids():
             break
         start, _, _, size, symbol = parse_symbol(symbol.decode('utf-8'))
         packet_name = '::'.join(symbol.split('::')[:-1]) #apparently packets can be namespaced now ???
+
+        match = re.search(r"SerializedPayloadPacket<(\w+?)Info,\s*(\w+?)Payload>", packet_name)
+        if match and match.group(1) == match.group(2):
+            packet_name = match.group(1)
+
         thread_index = None
         for i in range(len(threads)):
             if threads[i] is None:
