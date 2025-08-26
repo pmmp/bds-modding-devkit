@@ -15,6 +15,7 @@ The following mods are included as git submodules:
 - `libc++-dev`
 - `libc++abi-dev`
 - `binutils` (for `protocol_info_dumper.py`)
+- `cmake`
 - A folder or zip of [Bedrock Dedicated Server](https://minecraft.net/download/server/bedrock)
 
 ## Getting started in 60 seconds
