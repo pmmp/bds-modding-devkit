@@ -5,6 +5,7 @@ import sys
 import os
 import threading
 import json
+import queue
 
 if len(sys.argv) < 2:
     exit("Args: <BDS binary path> [output JSON file path]")
@@ -75,10 +76,33 @@ def parse_symbol(symbol):
     symbol = parts.groups()[4]
     return start, flags, section, size, symbol
 
+def worker(symbol_queue, packets, packets_lock, stop_event, symbol_added_event):
+    while not stop_event.is_set():
+        try:
+            s = symbol_queue.get_nowait()
+        except queue.Empty:
+            symbol_added_event.wait()
+            continue
+
+        start, size, symbol, packet_name = s
+
+        dump_packet_id_threaded(start, size, symbol, packet_name, packets, packets_lock)
+        symbol_queue.task_done()
+
 def dump_packet_ids():
     packets = {}
     packets_lock = threading.Lock()
-    threads = [None] * 8
+    symbol_queue = queue.Queue()
+    symbol_added_event = threading.Event()
+    stop_event = threading.Event()
+
+    threads = [None] * 2
+
+    for i in range(len(threads)):
+        t = threading.Thread(target=worker, args=(symbol_queue, packets, packets_lock, stop_event, symbol_added_event))
+        t.start()
+        threads[i] = t
+
     proc = subprocess.Popen(['objdump --demangle -tT --dwarf=follow-links \'' + bds_path + '\' | grep Packet | grep \'::getId()\''], shell=True, stdout=subprocess.PIPE)
     while True:
         symbol = proc.stdout.readline()
@@ -86,27 +110,16 @@ def dump_packet_ids():
             break
         start, _, _, size, symbol = parse_symbol(symbol.decode('utf-8'))
         packet_name = '::'.join(symbol.split('::')[:-1]) #apparently packets can be namespaced now ???
-
         match = re.search(r"SerializedPayloadPacket<(\w+?)Info,\s*(\w+?)Payload>", packet_name)
         if match and match.group(1) == match.group(2):
             packet_name = match.group(1)
 
-        thread_index = None
-        for i in range(len(threads)):
-            if threads[i] is None:
-                thread_index = i
-                break
-        while thread_index is None:
-            for i in range(len(threads)):
-                threads[i].join(0.1)
-                if not threads[i].is_alive():
-                    thread_index = i
-                    threads[i] = None
-                    break
+        symbol_queue.put((start, size, symbol, packet_name))
+        symbol_added_event.set()
 
-        t = threading.Thread(target=dump_packet_id_threaded, args=(start, size, symbol, packet_name, packets, packets_lock))
-        t.start()
-        threads[i] = t
+    symbol_queue.join()
+    stop_event.set()
+    symbol_added_event.set() #interrupt sleepers
     for t in threads:
         t.join()
     return packets
