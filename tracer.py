@@ -51,12 +51,13 @@ try:
     var doWrite = mode.includes('w');
     var file = message.file;
     var count = 0;
-    Module.enumerateSymbols(file).forEach(function(exportedFunc) {
+    var lib = Process.getModuleByName(file);
+    for (const exportedFunc of lib.enumerateSymbols(file)) {
         if (exportedFunc.type !== 'function') {
-            return;
+            continue;
         }
         if (!exportedFunc.name.includes('Packet')) {
-            return;
+            continue;
         }
         if (doRead && (exportedFunc.name.endsWith('Packet4readER20ReadOnlyBinaryStream') || exportedFunc.name.endsWith('Packet5_readER20ReadOnlyBinaryStream'))) {
             console.log("Hooking function " + exportedFunc.name);
@@ -70,8 +71,8 @@ try:
                         //read from std::string_view in 1.21.50
                         var baseAddr = this.pointer.add(32);
                         var bufferAddr = baseAddr;
-                        var rlen = Memory.readULong(baseAddr.add(8));
-                        var bytes = Memory.readByteArray(Memory.readPointer(bufferAddr), rlen);
+                        var rlen = baseAddr.add(8).readULong();
+                        var bytes = bufferAddr.readPointer().readByteArray(rlen);
                         if (bytes === null) {
                             console.log("Unexpected null payload from " + exportedFunc.name);
                         } else {
@@ -92,8 +93,8 @@ try:
                     //read from std::string_view in 1.21.50
                     var baseAddr = this.pointer.add(32);
                     var bufferAddr = baseAddr;
-                    var rlen = Memory.readULong(baseAddr.add(8));
-                    var bytes = Memory.readByteArray(Memory.readPointer(bufferAddr), rlen);
+                    var rlen = baseAddr.add(8).readULong();
+                    var bytes = bufferAddr.readPointer().readByteArray(rlen);
                     if (bytes === null) {
                         console.log("Unexpected null payload from " + exportedFunc.name);
                     } else {
@@ -106,7 +107,7 @@ try:
                 console.log("Error intercepting function " + exportedFunc.name + ": " + e.toString());
             }
         }
-    });
+    }
     console.log("Hooked " + count + " functions. Ready.");
 });
 """)
@@ -120,6 +121,7 @@ try:
     })
 
     session.on('detached', onExit)
+    print("Tracer setup, waiting for data\n")
     while not stopped:
         time.sleep(1)
     logfile.close()
