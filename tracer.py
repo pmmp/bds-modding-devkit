@@ -59,7 +59,7 @@ try:
         if (!exportedFunc.name.includes('Packet')) {
             continue;
         }
-        if (doRead && (
+        if (doRead && !exportedFunc.name.startsWith('_ZN6Packet') && ( //exclude generic encode
             exportedFunc.name.endsWith('Packet4readER20ReadOnlyBinaryStream') ||
             exportedFunc.name.endsWith('Packet5_readER20ReadOnlyBinaryStream') ||
             exportedFunc.name.endsWith('Packet5_readER20ReadOnlyBinaryStreamRKN6cereal13ReflectionCtxE')
@@ -86,7 +86,7 @@ try:
             });
             count++;
         }
-        if (doWrite && (
+        if (doWrite && !exportedFunc.name.startsWith('_ZNK6Packet') && (
             exportedFunc.name.endsWith('Packet5writeER12BinaryStream') ||
             exportedFunc.name.endsWith('Packet26writeWithSerializationModeER12BinaryStreamRKN6cereal13ReflectionCtxENSt3__18optionalI17SerializationModeEE')
         )) {
