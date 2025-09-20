@@ -43,6 +43,17 @@ Run `./helper.sh help` to get more usage info.
 > It's very likely that new versions of BDS will cause mods like `mapping` to not work anymore.
 > Updating these is sometimes complex and outside of the scope of this readme. Best to seek
 > support from the community if you don't know what you're doing.
+## Compiling mods
+
+> [!CAUTION]
+> You need to make sure your CC and CXX environment vars are set to point to `clang` and `clang++`, not `gcc` or `g++`.
+> Example for Ubuntu:
+> ```
+> export CXX=/usr/bin/clang++
+> export CC=/usr/bin/clang
+> ```
+
+Run `./scripts/build all` to build all mods.
 
 ## Things in the repo
 | File name | Description |
