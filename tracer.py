@@ -59,7 +59,11 @@ try:
         if (!exportedFunc.name.includes('Packet')) {
             continue;
         }
-        if (doRead && (exportedFunc.name.endsWith('Packet4readER20ReadOnlyBinaryStream') || exportedFunc.name.endsWith('Packet5_readER20ReadOnlyBinaryStream'))) {
+        if (doRead && (
+            exportedFunc.name.endsWith('Packet4readER20ReadOnlyBinaryStream') ||
+            exportedFunc.name.endsWith('Packet5_readER20ReadOnlyBinaryStream') ||
+            exportedFunc.name.endsWith('Packet5_readER20ReadOnlyBinaryStreamRKN6cereal13ReflectionCtxE')
+        )) {
             console.log("Hooking function " + exportedFunc.name);
             Interceptor.attach(exportedFunc.address, {
                 onEnter: function(args) {
@@ -82,7 +86,10 @@ try:
             });
             count++;
         }
-        if (doWrite && exportedFunc.name.endsWith('Packet5writeER12BinaryStream')) {
+        if (doWrite && (
+            exportedFunc.name.endsWith('Packet5writeER12BinaryStream') ||
+            exportedFunc.name.endsWith('Packet26writeWithSerializationModeER12BinaryStreamRKN6cereal13ReflectionCtxENSt3__18optionalI17SerializationModeEE')
+        )) {
             console.log("Hooking function " + exportedFunc.name);
             try{
             Interceptor.attach(exportedFunc.address, {
