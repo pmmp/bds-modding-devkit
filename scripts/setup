@@ -11,6 +11,8 @@ if [ $# -ne 1 ]; then
 	exit 1
 fi
 
+setup_python_venv "$PWD"
+install_python_deps "$PWD"
 install_modloader "$PWD"
 install_server "$1" "$PWD"
 build_all_mods "$MODS_CODE" "$CMAKE_FLAGS"

@@ -11,6 +11,7 @@ if [ $# -ne 1 ]; then
 	exit 1
 fi
 
+install_python_deps "$PWD"
 install_server "$1" "$PWD"
 
 
