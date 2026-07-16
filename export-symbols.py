@@ -11,6 +11,7 @@ if lib_symbols is None:
     print("Error opening given BDS file, aborting")
     exit(1)
 
+print(dir(lib_symbols))
 for s in lib_symbols.symtab_symbols:
     #Only export C++ mangled symbols - this is to avoid symbol conflicts with the likes of OpenSSL
     #They seem to compile OpenSSL statically, but dynamically link to system cURL which may use

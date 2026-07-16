@@ -70,7 +70,7 @@ clean_old_server(){
 	local working_directory="$1"
 	cd "$working_directory"
 	rm -rf structures behavior_packs resource_packs definitions || true
-	rm bedrock_server bedrock_server_symbols.debug bedrock_server_symbols_test.debug || true
+	rm bedrock_server bedrock_server_symbols.debug bedrock_server_symbols_test.debug bedrock_server_realms bedrock_server.debug || true
 	echo "${LG} > Old server files removed from ${working_directory}$R"
 }
 
@@ -108,7 +108,20 @@ copy_server_files(){
 		cp "$server_files/bedrock_server_symbols.debug" "$working_directory"
 	else
 		echo "${LY} > This version has symbols embedded in bedrock_server directly - copying bedrock_server to bedrock_server_symbols.debug$R"
-		cp "$server_files/bedrock_server" "$working_directory/bedrock_server_symbols.debug"
+		local copied=0
+		for source_file in "bedrock_server_realms" "bedrock_server.debug" "bedrock_server"; do
+
+			if [ -f "$server_files/$source_file" ]; then
+				echo "${LY} > Copying $source_file to bedrock_server_symbols.debug"
+				cp "$server_files/$source_file" "$working_directory/bedrock_server_symbols.debug"
+				copied=1
+				break
+			fi
+		done
+		if [ "$copied" == "0" ]; then
+			echo "${LR} !!! Couldn't find bedrock_server (or any variant) to use - check if the naming has changed and that the package is valid$R"
+			exit 1
+		fi
 	fi
 
 	if [ ! -f "$working_directory/server.properties" ]; then

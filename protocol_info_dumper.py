@@ -14,8 +14,10 @@ def convert_windows_path(path):
     return path.replace('\\', '/').replace('C:', '/mnt/c')
 
 bds_path = convert_windows_path(sys.argv[1])
-if len(sys.argv) == 3:
+if len(sys.argv) >= 3:
     output_file_path = convert_windows_path(sys.argv[2])
+    if os.path.isdir(output_file_path):
+        output_file_path = os.path.join(output_file_path, 'protocol_info.json')
 else:
     output_file_path = 'protocol_info.json'
 
